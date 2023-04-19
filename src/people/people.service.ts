@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 
 @Injectable()
 export class PeopleService {
@@ -15,11 +15,19 @@ export class PeopleService {
   }
 
   async findById(id: number): Promise<Person> {
-    return this.peopleRepository.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return await this.peopleRepository.findOneOrFail({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        throw new NotFoundException(`Person with ID '${id}' not found`);
+      } else {
+        throw error;
+      }
+    }
   }
 
   async create(person: Person): Promise<Person> {
@@ -32,6 +40,7 @@ export class PeopleService {
   }
 
   async remove(id: number): Promise<void> {
-    await this.peopleRepository.delete(id);
+    const person: Person = await this.findById(id);
+    await this.peopleRepository.remove(person);
   }
 }
