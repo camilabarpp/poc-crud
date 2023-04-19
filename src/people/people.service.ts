@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityNotFoundError, Repository } from 'typeorm';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { UpdatePersonDto } from './dto/update-person.dto';
 
 @Injectable()
 export class PeopleService {
@@ -30,12 +32,16 @@ export class PeopleService {
     }
   }
 
-  async create(person: Person): Promise<Person> {
-    return this.peopleRepository.save(person);
+  async create(personDto: CreatePersonDto) {
+    return this.peopleRepository.save(personDto);
   }
 
-  async update(id: number, person: Person): Promise<Person> {
-    await this.peopleRepository.update(id, person);
+  async update(id: number, person: UpdatePersonDto) {
+    await this.peopleRepository.update(id, {
+      ...(person.name && { name: person.name }),
+      ...(person.age && { age: person.age }),
+      ...(person.email && { email: person.email }),
+    });
     return this.findById(id);
   }
 

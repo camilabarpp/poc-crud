@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { Person } from './entities/person.entity';
+import { UpdatePersonDto } from './dto/update-person.dto';
+import { CreatePersonDto } from './dto/create-person.dto';
 
 @Controller('people')
 export class PeopleController {
@@ -25,13 +27,13 @@ export class PeopleController {
   }
 
   @Post()
-  create(@Body() pessoa): Promise<Person> {
+  create(@Body() pessoa: CreatePersonDto) {
     return this.peopleService.create(pessoa);
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() pessoa): Promise<Person> {
-    return this.peopleService.update(id, pessoa);
+  update(@Param('id') id: number, @Body() pessoa: UpdatePersonDto) {
+    return this.peopleService.update(+id, pessoa);
   }
 
   @Delete(':id')
