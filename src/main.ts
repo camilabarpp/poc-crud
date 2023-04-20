@@ -11,6 +11,7 @@ async function bootstrap() {
     .setTitle('People API')
     .setDescription('People Registration')
     .setVersion('1.0')
+    //TODO revisar se é global ou se não era pra ser API '.addTag('api')'
     .addTag('people')
     .build();
   const document = SwaggerModule.createDocument(app, config);

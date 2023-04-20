@@ -39,8 +39,8 @@ export class PeopleController {
     status: 201,
     description: 'Create a new person',
   })
-  create(@Body() pessoa: CreatePersonDto): Promise<Person> {
-    return this.peopleService.create(pessoa);
+  create(@Body() person: CreatePersonDto): Promise<Person> {
+    return this.peopleService.create(person);
   }
 
   @Put(':id')
@@ -51,9 +51,10 @@ export class PeopleController {
   })
   update(
     @Param('id') id: number,
-    @Body() pessoa: UpdatePersonDto,
+    @Body() person: UpdatePersonDto,
   ): Promise<Person> {
-    return this.peopleService.update(+id, pessoa);
+    //TODO revisar se tem necessidade de usar o '+'
+    return this.peopleService.update(+id, person);
   }
 
   @Delete(':id')
@@ -64,6 +65,7 @@ export class PeopleController {
     description: 'Delete a person',
   })
   remove(@Param('id') id: number): Promise<void> {
+    //TODO retornar NOT_FOUND se não encontrar o id
     return this.peopleService.remove(+id);
   }
 }

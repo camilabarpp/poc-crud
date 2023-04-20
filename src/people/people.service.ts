@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
@@ -28,10 +28,11 @@ export class PeopleService {
   }
 
   async create(personDto: CreatePersonDto): Promise<Person> {
-    return this.peopleRepository.save(personDto);
+    return await this.peopleRepository.save(personDto);
   }
 
   async update(id: number, person: UpdatePersonDto): Promise<Person> {
+    //TODO verificar se é uma boa pratica fazer assim
     await this.peopleRepository.update(id, {
       ...(person.name && { name: person.name }),
       ...(person.age && { age: person.age }),

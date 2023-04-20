@@ -15,4 +15,13 @@ describe('PeopleController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  describe('findAll', () => {
+    it('should return an array of people', async () => {
+      const result = [
+        { id: 1, name: 'Person 1', age: 20, email: 'person@mail.com' },
+      ];
+      expect(await controller.findAll()).toBe(result);
+    });
+  });
 });

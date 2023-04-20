@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from './people/people.module';
-import { Person } from './people/entities/person.entity';
 
 @Module({
   imports: [
@@ -12,7 +11,7 @@ import { Person } from './people/entities/person.entity';
       username: 'root',
       password: 'root',
       database: 'people',
-      entities: [Person],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
     PeopleModule,
