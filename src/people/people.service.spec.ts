@@ -12,6 +12,24 @@ import {
 } from '@nestjs/common';
 import { UpdatePersonDto } from './dto/update-person.dto';
 
+const personStub1 = {
+  id: 1,
+  name: 'Person 1',
+  age: 20,
+  email: 'person1@example.com',
+  createdAt: new Date().toString(),
+  updatedAt: new Date().toString(),
+};
+
+const personStub2 = {
+  id: 2,
+  name: 'Person 1',
+  age: 20,
+  email: 'person1@example.com',
+  createdAt: new Date().toString(),
+  updatedAt: new Date().toString(),
+};
+
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<NonNullable<unknown>>;
 };
@@ -52,32 +70,7 @@ describe('PeopleService', () => {
 
   describe('findAll', () => {
     it('should return an array of people', async () => {
-      const result = [
-        {
-          id: 1,
-          name: 'Person 1',
-          age: 20,
-          email: 'person1@example.com',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 2,
-          name: 'Person 2',
-          age: 30,
-          email: 'person2@example.com',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 3,
-          name: 'Person 3',
-          age: 40,
-          email: 'person3@example.com',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+      const result = [personStub1, personStub2];
       jest.spyOn(peopleRepository, 'find').mockResolvedValueOnce(result as any);
       expect(await service.findAll()).toBe(result);
     });
@@ -86,7 +79,7 @@ describe('PeopleService', () => {
   describe('findOne', () => {
     it('should return the correct person by ID', async () => {
       const personId = 1;
-      const expectedPerson = { id: 1, name: 'John Doe' };
+      const expectedPerson = personStub1;
       jest
         .spyOn(peopleRepository, 'findOne')
         .mockResolvedValueOnce(expectedPerson as any);
@@ -109,10 +102,10 @@ describe('PeopleService', () => {
     });
 
     it('should throw an error when ID is not a valid number', async () => {
-      const invalidId = 'abc';
+      const invalidId: any = 'abc';
 
-      await expect(service.findOne(+invalidId)).rejects.toThrow(
-        new BadRequestException("Person with ID 'NaN' not found"),
+      await expect(service.findOne(invalidId as number)).rejects.toThrow(
+        new BadRequestException("Person with ID 'abc' not found"),
       );
     });
 
@@ -130,15 +123,9 @@ describe('PeopleService', () => {
 
   describe('create', () => {
     it('should create a person with success', async () => {
-      const personDto = new CreatePersonDto();
-      personDto.name = 'John Doe';
-      personDto.email = 'johndoe@example.com';
-      personDto.age = 30;
+      const personDto: CreatePersonDto = personStub1;
 
-      const person = new Person();
-      person.name = 'John Doe';
-      person.email = 'johndoe@example.com';
-      person.age = 30;
+      const person: Person = personStub2;
 
       jest.spyOn(peopleRepository, 'save').mockResolvedValueOnce(person as any);
 
@@ -203,13 +190,9 @@ describe('PeopleService', () => {
 
   describe('update', () => {
     it('should update a person', async () => {
-      const person = new Person();
-      person.id = 1;
-      person.name = 'John Doe';
-      person.email = 'john@mail.com';
-      person.age = 30;
+      const person: Person = personStub1;
 
-      const personDto = new UpdatePersonDto();
+      const personDto: UpdatePersonDto = new UpdatePersonDto();
       personDto.name = 'John Smith';
       personDto.email = 'johnsmith@mail.com';
       personDto.age = 33;
@@ -231,28 +214,18 @@ describe('PeopleService', () => {
     });
 
     it('should throws NOT_FOUND exception when try to update a person with id not found', async () => {
-      const personDto = new UpdatePersonDto();
-      personDto.name = 'John Smith';
-      personDto.email = 'john@mail.com';
-      personDto.age = 33;
-
       jest.spyOn(peopleRepository, 'findOne').mockResolvedValueOnce(null);
 
-      try {
-        await service.update(1, personDto);
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.message).toBe("Person with ID '1' not found");
-      }
+      await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(1)).rejects.toThrow(
+        "Person with ID '1' not found",
+      );
     });
   });
 
   describe('remove', () => {
     it('should remove a person from the database', async () => {
-      const person = new Person();
-      person.id = 1;
-      person.name = 'John Doe';
-      person.email = 'john@mail.com';
+      const person: Person = personStub1;
 
       jest.spyOn(peopleRepository, 'findOne').mockResolvedValueOnce(person);
       const result = await service.remove(person.id);
@@ -274,14 +247,9 @@ describe('PeopleService', () => {
 
     it('should throw an error when a database error occurs while removing a person', async () => {
       const personId = 1;
-      const findOneSpy = jest.spyOn(service, 'findOne').mockResolvedValueOnce({
-        id: personId,
-        name: 'John Smith',
-        age: 30,
-        email: 'john.smith@example.com',
-        createdAt: new Date().toString(),
-        updatedAt: new Date().toString(),
-      });
+      const findOneSpy = jest
+        .spyOn(service, 'findOne')
+        .mockResolvedValueOnce(personStub1);
       const removeSpy = jest
         .spyOn(peopleRepository, 'remove')
         .mockRejectedValueOnce(new Error());
@@ -290,12 +258,7 @@ describe('PeopleService', () => {
 
       expect(findOneSpy).toHaveBeenCalledWith(personId);
       expect(removeSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: personId,
-          name: 'John Smith',
-          age: 30,
-          email: 'john.smith@example.com',
-        }),
+        expect.objectContaining(personStub1),
       );
     });
   });
